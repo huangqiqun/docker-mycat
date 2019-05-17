@@ -1,0 +1,94 @@
+version: '2'
+services:
+  m1:
+    build: ./mysql_m1
+    container_name: m1
+    volumes:
+      - ../config/mysql-m1/:/etc/mysql/:ro
+      #- /etc/localtime:/etc/localtime:ro
+      - ../config/hosts:/etc/hosts:ro
+    ports:
+      - "3309:3306"
+    networks:
+      database-net:
+        ipv4_address: 172.18.0.2
+    ulimits:
+      nproc: 65535
+    hostname: m1
+    mem_limit: 512m
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  s1:
+      build: ./mysql_s1
+      container_name: s1
+      volumes:
+        - ../config/mysql-s1/:/etc/mysql/:ro
+       # - /etc/localtime:/etc/localtime:ro
+        - ../config/hosts:/etc/hosts:ro
+      ports:
+        - "3307:3306"
+      networks:
+        database-net:
+          ipv4_address: 172.18.0.3
+      links:
+        - m1
+      ulimits:
+        nproc: 65535
+      hostname: s1
+      mem_limit: 512m
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+  s2:
+    build: ./mysql_s2
+    container_name: s2
+    volumes:
+      - ../config/mysql-s2/:/etc/mysql/:ro
+      #- /etc/localtime:/etc/localtime:ro
+      - ../config/hosts:/etc/hosts:ro
+    ports:
+      - "3308:3306"
+    links:
+      - m1
+    networks:
+      database-net:
+        ipv4_address: 172.18.0.4
+    ulimits:
+      nproc: 65535
+    hostname: s2
+    mem_limit: 512m
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  mycat:
+    build: ./mycat
+    container_name: mycat
+    volumes:
+      - ../config/mycat/:/mycat/conf/:ro
+      - ../log/mycat-logs/:/mycat/logs/:rw
+      #- /etc/localtime:/etc/localtime:ro
+      - ../config/hosts:/etc/hosts:ro
+    ports:
+      - "8066:8066"
+      - "9066:9066"
+    links:
+      - m1
+      - s1
+      - s2
+    networks:
+      database-net:
+        ipv4_address: 172.18.0.5
+    ulimits:
+      nproc: 65535
+    hostname: mycat
+    mem_limit: 512m
+    restart: always
+networks:
+  database-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.18.0.0/24
+        gateway: 172.18.0.1
