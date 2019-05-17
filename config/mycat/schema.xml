@@ -3,8 +3,28 @@
 <mycat:schema xmlns:mycat="http://io.mycat/">
 
 	<schema name="masterdb" checkSQLschema="false" sqlMaxLimit="100" dataNode="masterDN" />
+	<schema name="ApolloConfigDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="ApolloConfigDN" />
+	<schema name="ApolloPortalDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="ApolloPortalDN" />
+
 	<dataNode name="masterDN" dataHost="masterDH" database="masterdb" />
+	<dataNode name="ApolloConfigDN" dataHost="ApolloConfigDH" database="ApolloConfigDB" />
+	<dataNode name="ApolloPortalDN" dataHost="ApolloPortalDH" database="ApolloPortalDB" />
+
 	<dataHost name="masterDH" maxCon="1000" minCon="10" balance="1" writeType="0" dbType="mysql" dbDriver="native" switchType="-1" slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="m1" url="172.18.0.2:3306" user="root" password="root">
+			<readHost host="s1" url="172.18.0.3:3306" user="root" password="root" />
+			<readHost host="s2" url="172.18.0.4:3306" user="root" password="root" />
+		</writeHost>
+	</dataHost>
+	<dataHost name="ApolloConfigDH" maxCon="1000" minCon="10" balance="1" writeType="0" dbType="mysql" dbDriver="native" switchType="-1" slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="m1" url="172.18.0.2:3306" user="root" password="root">
+			<readHost host="s1" url="172.18.0.3:3306" user="root" password="root" />
+			<readHost host="s2" url="172.18.0.4:3306" user="root" password="root" />
+		</writeHost>
+	</dataHost>
+	<dataHost name="ApolloPortalDH" maxCon="1000" minCon="10" balance="1" writeType="0" dbType="mysql" dbDriver="native" switchType="-1" slaveThreshold="100">
 		<heartbeat>select user()</heartbeat>
 		<writeHost host="m1" url="172.18.0.2:3306" user="root" password="root">
 			<readHost host="s1" url="172.18.0.3:3306" user="root" password="root" />
